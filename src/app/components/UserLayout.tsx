@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
-import { User, Globe, TrendingUp, Scale, Calendar, LogOut } from "lucide-react";
+import { User, Globe, TrendingUp, Calendar, LogOut } from "lucide-react";
 
 export function UserLayout() {
   const location = useLocation();
@@ -11,7 +11,6 @@ export function UserLayout() {
     { path: "/user/dashboard", label: "Perfil", icon: User },
     { path: "/user/rotation", label: "Rotação Diplomática", icon: Globe },
     { path: "/user/career", label: "Avaliação & Carreira", icon: TrendingUp },
-    { path: "/user/compliance", label: "Conformidade Legal", icon: Scale },
     { path: "/user/attendance", label: "Férias, Faltas & Licenças", icon: Calendar },
   ];
 

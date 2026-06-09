@@ -35,7 +35,6 @@ export const router = createHashRouter([
       { path: "dashboard", Component: UserDashboard },
       { path: "rotation", Component: DiplomaticRotation },
       { path: "career", Component: CareerEvaluation },
-      { path: "compliance", Component: LegalCompliance },
       { path: "attendance", Component: Attendance },
     ],
   },
