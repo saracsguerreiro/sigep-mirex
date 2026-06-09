@@ -168,11 +168,11 @@ export function MissionMap() {
         ))}
       </div>
 
-      {/* Mapa + gráficos */}
-      <div className="bg-white rounded-2xl shadow-sm mb-5 overflow-hidden flex flex-col lg:flex-row">
+      {/* Mapa + gráficos — altura fixa no cartão externo */}
+      <div className="bg-white rounded-2xl shadow-sm mb-5 overflow-hidden flex flex-col lg:flex-row" style={{height:260}}>
 
         {/* Mapa */}
-        <div className="flex-1 relative" style={{minHeight:184}}>
+        <div className="flex-1 relative min-h-0">
           <ComposableMap projectionConfig={{rotate:[-10,0,0],scale:147}} style={{width:"100%",height:"100%",background:"#fff"}}>
             <ZoomableGroup zoom={1}>
               <Geographies geography={GEO_URL}>
@@ -231,7 +231,7 @@ export function MissionMap() {
         </div>
 
         {/* Gráficos por continente — painel 5% mais largo (w-52→~218px) */}
-        <div className="shrink-0 border-t lg:border-t-0 lg:border-l border-gray-100 p-5 flex flex-col gap-4" style={{width:218}}>
+        <div className="shrink-0 border-t lg:border-t-0 lg:border-l border-gray-100 p-5 flex flex-col gap-4 overflow-y-auto" style={{width:218}}>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Por Continente</p>
           <div className="space-y-3">
             {continentCounts.map(([name,count])=>(
