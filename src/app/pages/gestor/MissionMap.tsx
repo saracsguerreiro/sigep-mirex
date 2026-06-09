@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Users, AlertTriangle, Clock, Globe, Building2, Filter, X } from "lucide-react";
@@ -47,14 +47,15 @@ const matchesDuration = (months:number, f:string) => {
   return months>=36;
 };
 
+/* ~5% larger donuts: 48px → 50px container, r 15→16 / 22→23 */
 function ContinentDonut({name,value,total,color}:{name:string;value:number;total:number;color:string}) {
   const data=[{v:value},{v:total-value}];
   return (
-    <div className="flex items-center gap-2">
-      <div className="relative w-12 h-12 shrink-0">
+    <div className="flex items-center gap-2.5">
+      <div className="relative shrink-0" style={{width:50,height:50}}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={data} dataKey="v" cx="50%" cy="50%" innerRadius={15} outerRadius={22} startAngle={90} endAngle={-270} strokeWidth={0}>
+            <Pie data={data} dataKey="v" cx="50%" cy="50%" innerRadius={16} outerRadius={23} startAngle={90} endAngle={-270} strokeWidth={0}>
               <Cell fill={color}/><Cell fill="#e5e7eb"/>
             </Pie>
           </PieChart>
@@ -76,13 +77,15 @@ const statuses   = ["Todos","Normal","Atenção","Crítico"];
 const statusKeyMap: Record<string,string> = {"Normal":"normal","Atenção":"warning","Crítico":"critical"};
 
 export function MissionMap() {
-  const [tooltip, setTooltip]           = useState<{mission:typeof missions[0];x:number;y:number}|null>(null);
-  const [selected, setSelected]         = useState<typeof missions[0]|null>(null);
+  const [tooltip, setTooltip]                 = useState<{mission:typeof missions[0];x:number;y:number}|null>(null);
+  const [selected, setSelected]               = useState<typeof missions[0]|null>(null);
   const [filterContinent, setFilterContinent] = useState("Todos");
   const [filterCountry,   setFilterCountry]   = useState("Todos");
   const [filterType,      setFilterType]      = useState("Todos");
   const [filterDuration,  setFilterDuration]  = useState("Todas");
   const [filterStatus,    setFilterStatus]    = useState("Todos");
+
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const allDiplomats = missions.flatMap(m=>m.diplomats.map(d=>({...d,location:m.location,country:m.country,continent:m.continent,type:m.type,missionStatus:missionStatus(m)})));
   const total = allDiplomats.length;
@@ -109,8 +112,14 @@ export function MissionMap() {
   });
 
   const handlePinClick = (m: typeof missions[0]) => {
-    setSelected(selected?.id===m.id ? null : m);
-    setFilterCountry(m.country);
+    const isDeselect = selected?.id === m.id;
+    setSelected(isDeselect ? null : m);
+    setFilterCountry(isDeselect ? "Todos" : m.country);
+    if (!isDeselect) {
+      setTimeout(() => {
+        tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 120);
+    }
   };
 
   const clearFilters = () => {
@@ -123,9 +132,25 @@ export function MissionMap() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
+
+      {/* Keyframe animations for selected pin */}
+      <style>{`
+        @keyframes pin-blink {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0.2; }
+        }
+        @keyframes pin-ring-expand {
+          0%   { transform: scale(1);   opacity: 0.7; }
+          100% { transform: scale(2.8); opacity: 0;   }
+        }
+        .pin-blink    { animation: pin-blink       0.85s ease-in-out infinite; }
+        .pin-ring-exp { animation: pin-ring-expand  1.2s  ease-out     infinite;
+                        transform-box: fill-box; transform-origin: center; }
+      `}</style>
+
       <div className="mb-5">
         <h1 className="text-2xl mb-1">Mapa de Missões Diplomáticas</h1>
-        <p className="text-gray-500 text-sm">Distribuição geográfica dos diplomatas em missão · clique num pin para filtrar</p>
+        <p className="text-gray-500 text-sm">Distribuição geográfica dos diplomatas em missão · clique num pin para ver detalhes</p>
       </div>
 
       {/* KPIs */}
@@ -143,11 +168,11 @@ export function MissionMap() {
         ))}
       </div>
 
-      {/* Infographic: mapa + gráficos lado direito */}
+      {/* Mapa + gráficos */}
       <div className="bg-white rounded-2xl shadow-sm mb-5 overflow-hidden flex flex-col lg:flex-row">
 
-        {/* Mapa (esquerda, maior) */}
-        <div className="flex-1 relative" style={{minHeight:300}}>
+        {/* Mapa — altura reduzida */}
+        <div className="flex-1 relative" style={{minHeight:230}}>
           <ComposableMap projectionConfig={{rotate:[-10,0,0],scale:147}} style={{width:"100%",height:"100%",background:"#fff"}}>
             <ZoomableGroup zoom={1}>
               <Geographies geography={GEO_URL}>
@@ -158,19 +183,37 @@ export function MissionMap() {
               </Geographies>
 
               {missions.map(m=>{
-                const st  = missionStatus(m);
-                const cc  = CONTINENT_COLORS[m.continent]??"#6b7280";
-                const dim = !filteredMissions.includes(m);
+                const st         = missionStatus(m);
+                const cc         = CONTINENT_COLORS[m.continent]??"#6b7280";
+                const isSelected = selected?.id === m.id;
+                const pinR       = isSelected ? 10 : 7;
+                const dotR       = isSelected ? 3.5 : 2.5;
+                const lineEnd    = isSelected ? 16 : 13;
+
                 return (
                   <Marker key={m.id} coordinates={m.coordinates}
                     onClick={()=>handlePinClick(m)}
                     onMouseEnter={e=>setTooltip({mission:m,x:e.clientX,y:e.clientY})}
                     onMouseLeave={()=>setTooltip(null)}>
-                    <g style={{cursor:"pointer",opacity:dim?0.2:1,transition:"opacity 0.2s"}}>
-                      {st==="critical" && <circle r={13} fill="none" stroke="#ef4444" strokeWidth={1.5} opacity={0.45}/>}
-                      <circle r={7} fill={cc} stroke="#fff" strokeWidth={1.5}/>
-                      <circle r={2.5} fill="#fff"/>
-                      <line x1={0} y1={7} x2={0} y2={13} stroke={cc} strokeWidth={1.5}/>
+                    <g style={{cursor:"pointer"}}>
+
+                      {/* Expanding ring — only when selected */}
+                      {isSelected && (
+                        <circle r={pinR} fill={cc} className="pin-ring-exp"/>
+                      )}
+
+                      {/* Critical ring — only when not selected */}
+                      {st==="critical" && !isSelected && (
+                        <circle r={13} fill="none" stroke="#ef4444" strokeWidth={1.5} opacity={0.45}/>
+                      )}
+
+                      {/* Main pin body — blinks when selected */}
+                      <g className={isSelected ? "pin-blink" : ""}>
+                        <circle r={pinR} fill={cc} stroke="#fff" strokeWidth={1.5}/>
+                        <circle r={dotR} fill="#fff"/>
+                        <line x1={0} y1={pinR} x2={0} y2={lineEnd} stroke={cc} strokeWidth={1.5}/>
+                      </g>
+
                     </g>
                   </Marker>
                 );
@@ -187,8 +230,8 @@ export function MissionMap() {
           )}
         </div>
 
-        {/* Gráficos por continente (direita) */}
-        <div className="lg:w-52 shrink-0 border-t lg:border-t-0 lg:border-l border-gray-100 p-5 flex flex-col gap-4">
+        {/* Gráficos por continente — painel 5% mais largo (w-52→~218px) */}
+        <div className="shrink-0 border-t lg:border-t-0 lg:border-l border-gray-100 p-5 flex flex-col gap-4" style={{width:218}}>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Por Continente</p>
           <div className="space-y-3">
             {continentCounts.map(([name,count])=>(
@@ -215,7 +258,7 @@ export function MissionMap() {
               <h3 className="text-base font-medium">{selected.location}</h3>
               <p className="text-sm text-gray-500">{selected.country} · {selected.continent} · {selected.type}</p>
             </div>
-            <button onClick={()=>{setSelected(null);setFilterCountry("Todos");}} className="text-gray-400 hover:text-gray-600 text-xl leading-none"><X size={16}/></button>
+            <button onClick={()=>{setSelected(null);setFilterCountry("Todos");}} className="text-gray-400 hover:text-gray-600"><X size={16}/></button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {selected.diplomats.map((d,i)=>(
@@ -244,9 +287,7 @@ export function MissionMap() {
             <Filter size={14} className="text-gray-400"/>
             <span className="text-sm text-gray-600">Filtros</span>
             {filterCountry!=="Todos"&&(
-              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 flex items-center gap-1">
-                {filterCountry}
-              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{filterCountry}</span>
             )}
           </div>
           {hasActiveFilter&&(
@@ -256,7 +297,6 @@ export function MissionMap() {
           )}
         </div>
         <div className="flex flex-wrap gap-5">
-          {/* Continente */}
           <div>
             <p className="text-xs text-gray-400 mb-1.5 uppercase tracking-wide">Continente</p>
             <div className="flex flex-wrap gap-1.5">
@@ -269,7 +309,6 @@ export function MissionMap() {
               ))}
             </div>
           </div>
-          {/* Tipo */}
           <div>
             <p className="text-xs text-gray-400 mb-1.5 uppercase tracking-wide">Tipo</p>
             <div className="flex gap-1.5">
@@ -281,7 +320,6 @@ export function MissionMap() {
               ))}
             </div>
           </div>
-          {/* Estado */}
           <div>
             <p className="text-xs text-gray-400 mb-1.5 uppercase tracking-wide">Estado</p>
             <div className="flex gap-1.5">
@@ -297,7 +335,6 @@ export function MissionMap() {
               })}
             </div>
           </div>
-          {/* Duração */}
           <div>
             <p className="text-xs text-gray-400 mb-1.5 uppercase tracking-wide">Duração</p>
             <div className="flex flex-wrap gap-1.5">
@@ -312,8 +349,8 @@ export function MissionMap() {
         </div>
       </div>
 
-      {/* Tabela */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      {/* Tabela — ref para scroll automático */}
+      <div ref={tableRef} className="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div className="p-5 border-b border-gray-100 flex items-center justify-between">
           <span className="text-sm font-medium text-gray-700">Resultados</span>
           <span className="text-xs text-gray-400">{filteredDiplomats.length} diplomata(s)</span>
