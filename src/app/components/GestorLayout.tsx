@@ -29,7 +29,7 @@ export function GestorLayout() {
       {/* Sidebar */}
       <aside className="w-72 bg-blue-900 text-white flex flex-col">
         <div className="p-4 border-b border-blue-800">
-          <img src={logoHoriz} alt="SIGEP-MIREX" className="w-full" />
+          <img src={logoHoriz} alt="SIGEP-MIREX" className="w-4/5 mx-auto" />
         </div>
 
         {/* User Info */}

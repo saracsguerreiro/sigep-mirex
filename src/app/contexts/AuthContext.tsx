@@ -1,15 +1,29 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { User, UserRole, AuthContextType } from "../types/auth";
 
+const AUTH_KEY = "sigep_user";
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const stored = localStorage.getItem(AUTH_KEY);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const persistUser = (u: User | null) => {
+    if (u) localStorage.setItem(AUTH_KEY, JSON.stringify(u));
+    else localStorage.removeItem(AUTH_KEY);
+    setUser(u);
+  };
 
   const login = (email: string, password: string, role: UserRole) => {
     // Mock login - in production, this would call an API
     if (role === "gestor") {
-      setUser({
+      persistUser({
         id: "G001",
         name: "Dr. António Ferreira",
         email: "antonio.ferreira@mirex.gov",
@@ -21,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isProfileComplete: true,
       });
     } else {
-      setUser({
+      persistUser({
         id: "U001",
         name: "Minka Correia",
         email: "minka.correia@mirex.gov",
@@ -36,12 +50,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    setUser(null);
+    persistUser(null);
   };
 
   const updateProfile = (data: Partial<User>) => {
     if (user) {
-      setUser({ ...user, ...data });
+      persistUser({ ...user, ...data });
     }
   };
 
