@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
 import { UserRole } from "../types/auth";
 import { Users, Building2 } from "lucide-react";
+import bgImage from "../../imports/plataf.png";
 
 export function Login() {
   const [activeTab, setActiveTab] = useState<UserRole>("user");
@@ -24,8 +25,12 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 relative"
+      style={{ backgroundImage: `url(${bgImage})`, backgroundSize: "cover", backgroundPosition: "center" }}
+    >
+      <div className="absolute inset-0 bg-blue-900/70" />
+      <div className="w-full max-w-md relative z-10">
         {/* Logo and Title */}
         <div className="text-center mb-8">
           <div className="inline-block bg-white p-4 rounded-full mb-4">
