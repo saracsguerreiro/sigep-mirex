@@ -104,7 +104,7 @@ export function ProfileUpdate() {
                   onChange={handleChange}
                   placeholder="+244 900 000 000"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+
                 />
               </div>
 
@@ -118,7 +118,7 @@ export function ProfileUpdate() {
                   value={formData.birthDate}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+
                 />
               </div>
 
@@ -132,7 +132,7 @@ export function ProfileUpdate() {
                   value={formData.nationality}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+
                 />
               </div>
 
@@ -147,7 +147,7 @@ export function ProfileUpdate() {
                   onChange={handleChange}
                   placeholder="000000000XX000"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+
                 />
               </div>
 
@@ -162,7 +162,7 @@ export function ProfileUpdate() {
                   onChange={handleChange}
                   placeholder="Rua, Bairro, Município"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+
                 />
               </div>
 
@@ -176,7 +176,7 @@ export function ProfileUpdate() {
                   value={formData.city}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+
                 />
               </div>
 
@@ -189,7 +189,7 @@ export function ProfileUpdate() {
                   value={formData.province}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+
                 >
                   <option value="">Seleccione...</option>
                   <option value="Luanda">Luanda</option>
@@ -274,7 +274,7 @@ export function ProfileUpdate() {
                   value={formData.entryDate}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+
                 />
               </div>
 
@@ -287,7 +287,7 @@ export function ProfileUpdate() {
                   value={formData.contractType}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+
                 >
                   <option value="">Seleccione...</option>
                   <option value="Efectivo">Efectivo</option>
@@ -307,7 +307,7 @@ export function ProfileUpdate() {
                   onChange={handleChange}
                   placeholder="Ex: Sede MIREX - Luanda"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+
                 />
               </div>
             </div>
@@ -347,7 +347,7 @@ export function ProfileUpdate() {
                         }
                       }}
                       className="hidden"
-                      required
+    
                     />
                     <label
                       htmlFor="photo"
