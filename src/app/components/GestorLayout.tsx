@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
 import { LayoutDashboard, UserCheck, Map, Users, Globe, TrendingUp, Scale, Calendar, LogOut } from "lucide-react";
+import logoHoriz from "../../imports/logo_sigep_HORIZ.png";
 
 export function GestorLayout() {
   const location = useLocation();
@@ -27,9 +28,8 @@ export function GestorLayout() {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <aside className="w-72 bg-blue-900 text-white flex flex-col">
-        <div className="p-6 border-b border-blue-800">
-          <h1 className="text-xl mb-1">SIGEP-MIREX</h1>
-          <p className="text-xs text-blue-200">Painel do Gestor</p>
+        <div className="p-4 border-b border-blue-800">
+          <img src={logoHoriz} alt="SIGEP-MIREX" className="w-full" />
         </div>
 
         {/* User Info */}
