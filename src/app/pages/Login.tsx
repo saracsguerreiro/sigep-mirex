@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { UserRole } from "../types/auth";
 import { Users, Building2 } from "lucide-react";
 import bgImage from "../../imports/plataf.png";
+import logoImage from "../../imports/logo_sigep.png";
 
 export function Login() {
   const [activeTab, setActiveTab] = useState<UserRole>("user");
@@ -31,14 +32,9 @@ export function Login() {
     >
       <div className="absolute inset-0 bg-blue-900/70" />
       <div className="w-full max-w-md relative z-10">
-        {/* Logo and Title */}
+        {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-block bg-white p-4 rounded-full mb-4">
-            <Building2 size={48} className="text-blue-900" />
-          </div>
-          <h1 className="text-white text-3xl mb-2">SIGEP-MIREX</h1>
-          <p className="text-blue-200 text-sm">Sistema Integrado de Gestão de Pessoal</p>
-          <p className="text-blue-300 text-xs mt-1">Ministério das Relações Exteriores</p>
+          <img src={logoImage} alt="SIGEP-MIREX" className="mx-auto w-64" />
         </div>
 
         {/* Login Card */}
