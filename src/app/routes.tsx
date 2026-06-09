@@ -12,6 +12,7 @@ import { DiplomaticRotation } from "./pages/DiplomaticRotation";
 import { CareerEvaluation } from "./pages/CareerEvaluation";
 import { LegalCompliance } from "./pages/LegalCompliance";
 import { Attendance } from "./pages/Attendance";
+import { GestorLeave } from "./pages/gestor/GestorLeave";
 import { NotFound } from "./pages/NotFound";
 
 function RequireAuth() {
@@ -58,7 +59,7 @@ export const router = createHashRouter([
           { path: "rotation", Component: DiplomaticRotation },
           { path: "career", Component: CareerEvaluation },
           { path: "compliance", Component: LegalCompliance },
-          { path: "attendance", Component: Attendance },
+          { path: "attendance", Component: GestorLeave },
         ],
       },
     ],
