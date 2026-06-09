@@ -1,8 +1,7 @@
 import { useState } from "react";
-import {
-  ComposableMap, Geographies, Geography, Marker, ZoomableGroup,
-} from "react-simple-maps";
-import { Globe, AlertTriangle, Clock, MapPin, Filter, Users, Building2 } from "lucide-react";
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { MapPin, Users, AlertTriangle, Clock, Globe, Building2, Filter } from "lucide-react";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
@@ -79,41 +78,73 @@ const missions = [
   },
 ];
 
+const CONTINENT_COLORS: Record<string, string> = {
+  "Europa": "#3b82f6",
+  "África": "#10b981",
+  "América do Sul": "#f59e0b",
+  "América do Norte": "#8b5cf6",
+  "Ásia": "#ef4444",
+};
+
 const continents = ["Todos", "Europa", "África", "América do Sul", "América do Norte", "Ásia"];
 const types = ["Todos", "Embaixada", "Consulado"];
 const durations = ["Todas", "< 1 ano", "1–2 anos", "2–3 anos", "> 3 anos"];
 
-const statusColor = (status: string) =>
-  status === "critical" ? "#ef4444" : status === "warning" ? "#f59e0b" : "#10b981";
-
-const statusLabel = (status: string) =>
-  status === "critical" ? "Crítico" : status === "warning" ? "Atenção" : "Normal";
-
+const statusColor = (s: string) => s === "critical" ? "#ef4444" : s === "warning" ? "#f59e0b" : "#10b981";
 const missionStatus = (m: typeof missions[0]) => {
   if (m.diplomats.some(d => d.status === "critical")) return "critical";
   if (m.diplomats.some(d => d.status === "warning")) return "warning";
   return "normal";
 };
-
-const matchesDuration = (months: number, filter: string) => {
-  if (filter === "Todas") return true;
-  if (filter === "< 1 ano") return months < 12;
-  if (filter === "1–2 anos") return months >= 12 && months < 24;
-  if (filter === "2–3 anos") return months >= 24 && months < 36;
-  if (filter === "> 3 anos") return months >= 36;
-  return true;
+const matchesDuration = (months: number, f: string) => {
+  if (f === "Todas") return true;
+  if (f === "< 1 ano") return months < 12;
+  if (f === "1–2 anos") return months >= 12 && months < 24;
+  if (f === "2–3 anos") return months >= 24 && months < 36;
+  return months >= 36;
 };
+
+// Donut chart per continent
+function ContinentDonut({ name, value, total, color }: { name: string; value: number; total: number; color: string }) {
+  const pct = Math.round((value / total) * 100);
+  const data = [{ v: value }, { v: total - value }];
+  return (
+    <div className="flex items-center gap-3">
+      <div className="relative w-14 h-14 shrink-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie data={data} dataKey="v" cx="50%" cy="50%" innerRadius={18} outerRadius={26} startAngle={90} endAngle={-270} strokeWidth={0}>
+              <Cell fill={color} />
+              <Cell fill="#e5e7eb" />
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+        <span className="absolute inset-0 flex items-center justify-center text-xs font-medium" style={{ color }}>{value}</span>
+      </div>
+      <div>
+        <p className="text-xs font-medium text-gray-700 leading-tight">{name}</p>
+        <p className="text-xs text-gray-400">{pct}% do total</p>
+      </div>
+    </div>
+  );
+}
 
 export function MissionMap() {
   const [tooltip, setTooltip] = useState<{ mission: typeof missions[0]; x: number; y: number } | null>(null);
-  const [selectedMission, setSelectedMission] = useState<typeof missions[0] | null>(null);
+  const [selected, setSelected] = useState<typeof missions[0] | null>(null);
   const [filterContinent, setFilterContinent] = useState("Todos");
   const [filterType, setFilterType] = useState("Todos");
   const [filterDuration, setFilterDuration] = useState("Todas");
 
-  const allDiplomats = missions.flatMap(m =>
-    m.diplomats.map(d => ({ ...d, location: m.location, country: m.country, continent: m.continent, type: m.type }))
-  );
+  const allDiplomats = missions.flatMap(m => m.diplomats.map(d => ({ ...d, location: m.location, country: m.country, continent: m.continent, type: m.type })));
+  const totalDiplomats = allDiplomats.length;
+
+  const continentCounts = Object.entries(
+    missions.reduce((acc, m) => {
+      acc[m.continent] = (acc[m.continent] || 0) + m.diplomats.length;
+      return acc;
+    }, {} as Record<string, number>)
+  ).sort((a, b) => b[1] - a[1]);
 
   const filteredMissions = missions.filter(m => {
     if (filterContinent !== "Todos" && m.continent !== filterContinent) return false;
@@ -129,33 +160,24 @@ export function MissionMap() {
     return true;
   });
 
-  const stats = {
-    total: allDiplomats.length,
-    critical: allDiplomats.filter(d => d.status === "critical").length,
-    warning: allDiplomats.filter(d => d.status === "warning").length,
-    missions: missions.length,
-  };
-
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl mb-1">Mapa de Missões Diplomáticas</h1>
-        <p className="text-gray-500 text-sm">Distribuição geográfica e controlo de duração das missões</p>
+      <div className="mb-5">
+        <h1 className="text-2xl mb-1">Mapa de Missões Diplomáticas</h1>
+        <p className="text-gray-500 text-sm">Distribuição geográfica dos diplomatas em missão</p>
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         {[
-          { label: "Total Diplomatas", value: stats.total, icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
-          { label: "Missões Activas", value: stats.missions, icon: Globe, color: "text-emerald-600", bg: "bg-emerald-50" },
-          { label: "Em Atenção", value: stats.warning, icon: Clock, color: "text-orange-500", bg: "bg-orange-50" },
-          { label: "Crítico", value: stats.critical, icon: AlertTriangle, color: "text-red-500", bg: "bg-red-50" },
+          { label: "Diplomatas", value: totalDiplomats, icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
+          { label: "Missões", value: missions.length, icon: Globe, color: "text-emerald-600", bg: "bg-emerald-50" },
+          { label: "Em Atenção", value: allDiplomats.filter(d => d.status === "warning").length, icon: Clock, color: "text-amber-500", bg: "bg-amber-50" },
+          { label: "Crítico", value: allDiplomats.filter(d => d.status === "critical").length, icon: AlertTriangle, color: "text-red-500", bg: "bg-red-50" },
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3">
-            <div className={`${s.bg} p-2.5 rounded-lg`}>
-              <s.icon size={20} className={s.color} />
-            </div>
+            <div className={`${s.bg} p-2.5 rounded-lg`}><s.icon size={18} className={s.color} /></div>
             <div>
               <p className="text-2xl leading-none">{s.value}</p>
               <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
@@ -164,28 +186,43 @@ export function MissionMap() {
         ))}
       </div>
 
-      {/* Mapa */}
-      <div className="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
-        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Globe size={18} className="text-blue-600" />
-            <span className="text-base">Distribuição Geográfica</span>
+      {/* Infographic: gráficos esquerda + mapa direita */}
+      <div className="bg-white rounded-2xl shadow-sm mb-6 overflow-hidden flex flex-col lg:flex-row">
+
+        {/* Painel esquerdo – gráficos por continente */}
+        <div className="lg:w-56 shrink-0 p-6 border-b lg:border-b-0 lg:border-r border-gray-100 flex flex-col justify-between gap-5">
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Por Continente</p>
+            <div className="space-y-4">
+              {continentCounts.map(([name, count]) => (
+                <ContinentDonut
+                  key={name}
+                  name={name}
+                  value={count}
+                  total={totalDiplomats}
+                  color={CONTINENT_COLORS[name] ?? "#6b7280"}
+                />
+              ))}
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-xs text-gray-500">
+
+          {/* Legenda status */}
+          <div className="pt-4 border-t border-gray-100 space-y-2">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Estado</p>
             {[["#10b981", "Normal"], ["#f59e0b", "Atenção"], ["#ef4444", "Crítico"]].map(([color, label]) => (
-              <span key={label} className="flex items-center gap-1">
-                <span className="w-3 h-3 rounded-full inline-block" style={{ backgroundColor: color }} />
-                {label}
-              </span>
+              <div key={label} className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                <span className="text-xs text-gray-600">{label}</span>
+              </div>
             ))}
-            <span className="text-gray-400">· clique para detalhes</span>
           </div>
         </div>
 
-        <div className="relative bg-slate-900" style={{ height: 420 }}>
+        {/* Mapa */}
+        <div className="flex-1 relative" style={{ minHeight: 380 }}>
           <ComposableMap
             projectionConfig={{ rotate: [-10, 0, 0], scale: 147 }}
-            style={{ width: "100%", height: "100%" }}
+            style={{ width: "100%", height: "100%", background: "#fff" }}
           >
             <ZoomableGroup zoom={1}>
               <Geographies geography={GEO_URL}>
@@ -194,10 +231,14 @@ export function MissionMap() {
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
-                      fill="#1e293b"
-                      stroke="#334155"
+                      fill="#d1d5db"
+                      stroke="#f3f4f6"
                       strokeWidth={0.5}
-                      style={{ default: { outline: "none" }, hover: { outline: "none", fill: "#273549" }, pressed: { outline: "none" } }}
+                      style={{
+                        default: { outline: "none" },
+                        hover: { outline: "none", fill: "#9ca3af" },
+                        pressed: { outline: "none" },
+                      }}
                     />
                   ))
                 }
@@ -206,31 +247,26 @@ export function MissionMap() {
               {missions.map(m => {
                 const status = missionStatus(m);
                 const color = statusColor(status);
-                const r = 6 + m.diplomats.length * 3;
                 const isFiltered = !filteredMissions.includes(m);
+                const continentColor = CONTINENT_COLORS[m.continent] ?? "#6b7280";
                 return (
                   <Marker
                     key={m.id}
                     coordinates={m.coordinates}
-                    onClick={() => setSelectedMission(m === selectedMission ? null : m)}
+                    onClick={() => setSelected(m === selected ? null : m)}
                     onMouseEnter={e => setTooltip({ mission: m, x: e.clientX, y: e.clientY })}
                     onMouseLeave={() => setTooltip(null)}
                   >
-                    <circle
-                      r={r}
-                      fill={color}
-                      fillOpacity={isFiltered ? 0.2 : 0.85}
-                      stroke={isFiltered ? "#475569" : "#fff"}
-                      strokeWidth={1.5}
-                      style={{ cursor: "pointer", transition: "all 0.2s" }}
-                    />
-                    <text
-                      textAnchor="middle"
-                      y={4}
-                      style={{ fontSize: 9, fill: "#fff", fontWeight: "bold", pointerEvents: "none" }}
-                    >
-                      {m.diplomats.length}
-                    </text>
+                    {/* Pin shape */}
+                    <g style={{ cursor: "pointer", opacity: isFiltered ? 0.25 : 1, transition: "opacity 0.2s" }}>
+                      <circle r={8} fill={continentColor} stroke="#fff" strokeWidth={1.5} />
+                      <circle r={3} fill="#fff" />
+                      {/* pulse ring for critical */}
+                      {status === "critical" && (
+                        <circle r={12} fill="none" stroke="#ef4444" strokeWidth={1.5} opacity={0.5} />
+                      )}
+                      <line x1={0} y1={8} x2={0} y2={14} stroke={continentColor} strokeWidth={1.5} />
+                    </g>
                   </Marker>
                 );
               })}
@@ -240,63 +276,44 @@ export function MissionMap() {
           {/* Tooltip */}
           {tooltip && (
             <div
-              className="fixed z-50 bg-white rounded-lg shadow-lg p-3 text-sm pointer-events-none"
-              style={{ left: tooltip.x + 12, top: tooltip.y - 40 }}
+              className="fixed z-50 bg-white rounded-xl shadow-lg border border-gray-100 p-3 text-sm pointer-events-none"
+              style={{ left: tooltip.x + 14, top: tooltip.y - 50 }}
             >
-              <p className="font-medium">{tooltip.mission.location}</p>
-              <p className="text-gray-500 text-xs">{tooltip.mission.country} · {tooltip.mission.diplomats.length} diplomata(s)</p>
+              <p className="font-medium text-gray-800">{tooltip.mission.location}</p>
+              <p className="text-gray-400 text-xs mt-0.5">
+                {tooltip.mission.country} · {tooltip.mission.type} · {tooltip.mission.diplomats.length} diplomata(s)
+              </p>
             </div>
           )}
         </div>
-
-        {/* Continentes por volume */}
-        <div className="p-4 border-t border-gray-100">
-          <div className="flex flex-wrap gap-3">
-            {Object.entries(
-              missions.reduce((acc, m) => {
-                acc[m.continent] = (acc[m.continent] || 0) + m.diplomats.length;
-                return acc;
-              }, {} as Record<string, number>)
-            ).sort((a, b) => b[1] - a[1]).map(([continent, count]) => (
-              <div key={continent} className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-full">
-                <MapPin size={12} className="text-blue-600" />
-                <span className="text-xs text-gray-700">{continent}</span>
-                <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">{count}</span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
-      {/* Painel de detalhe da missão seleccionada */}
-      {selectedMission && (
-        <div className="bg-white rounded-xl shadow-sm mb-6 p-5 border-l-4 border-blue-500">
-          <div className="flex items-start justify-between mb-3">
+      {/* Detalhe da missão seleccionada */}
+      {selected && (
+        <div className="bg-white rounded-2xl shadow-sm mb-6 p-5 border-l-4" style={{ borderColor: CONTINENT_COLORS[selected.continent] }}>
+          <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-lg">{selectedMission.location}</h3>
-              <p className="text-sm text-gray-500">{selectedMission.country} · {selectedMission.continent}</p>
+              <h3 className="text-base font-medium">{selected.location}</h3>
+              <p className="text-sm text-gray-500">{selected.country} · {selected.continent} · {selected.type}</p>
             </div>
-            <button onClick={() => setSelectedMission(null)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">×</button>
+            <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {selectedMission.diplomats.map((d, i) => (
-              <div key={i} className={`p-3 rounded-lg border-l-4 ${
-                d.status === "critical" ? "border-red-500 bg-red-50"
-                : d.status === "warning" ? "border-orange-400 bg-orange-50"
-                : "border-green-500 bg-green-50"
-              }`}>
-                <p className="text-sm">{d.name}</p>
+            {selected.diplomats.map((d, i) => (
+              <div key={i} className="p-3 rounded-xl border border-gray-100 bg-gray-50">
+                <p className="text-sm font-medium text-gray-800">{d.name}</p>
                 <p className="text-xs text-gray-500 mt-0.5">Início: {d.start}</p>
                 <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs text-gray-600">{d.months} meses</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    d.status === "critical" ? "bg-red-200 text-red-800"
-                    : d.status === "warning" ? "bg-orange-200 text-orange-800"
-                    : "bg-green-200 text-green-800"
-                  }`}>{statusLabel(d.status)}</span>
+                  <span className="text-xs text-gray-500">{d.months} meses</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full" style={{
+                    backgroundColor: statusColor(d.status) + "22",
+                    color: statusColor(d.status),
+                  }}>
+                    {d.status === "critical" ? "Crítico" : d.status === "warning" ? "Atenção" : "Normal"}
+                  </span>
                 </div>
-                <div className="mt-2 bg-white/60 rounded-full h-1.5">
-                  <div className="h-1.5 rounded-full transition-all" style={{
+                <div className="mt-2 bg-gray-200 rounded-full h-1">
+                  <div className="h-1 rounded-full transition-all" style={{
                     width: `${Math.min((d.months / 36) * 100, 100)}%`,
                     backgroundColor: statusColor(d.status),
                   }} />
@@ -308,45 +325,48 @@ export function MissionMap() {
       )}
 
       {/* Filtros */}
-      <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm p-5 mb-5">
         <div className="flex items-center gap-2 mb-4">
-          <Filter size={16} className="text-gray-500" />
-          <span className="text-sm text-gray-700">Filtros</span>
+          <Filter size={15} className="text-gray-400" />
+          <span className="text-sm text-gray-600">Filtros</span>
         </div>
         <div className="flex flex-wrap gap-6">
           <div>
-            <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Continente</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">Continente</p>
+            <div className="flex flex-wrap gap-1.5">
               {continents.map(c => (
                 <button key={c} onClick={() => setFilterContinent(c)}
-                  className={`px-3 py-1.5 rounded-lg text-xs transition-colors ${
-                    filterContinent === c ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}>
+                  className={`px-3 py-1 rounded-lg text-xs transition-colors ${
+                    filterContinent === c
+                      ? "text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                  style={filterContinent === c ? { backgroundColor: CONTINENT_COLORS[c] ?? "#3b82f6" } : {}}>
                   {c}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Tipo</p>
-            <div className="flex gap-2">
+            <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">Tipo</p>
+            <div className="flex gap-1.5">
               {types.map(t => (
                 <button key={t} onClick={() => setFilterType(t)}
-                  className={`px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1.5 ${
-                    filterType === t ? "bg-purple-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  className={`px-3 py-1 rounded-lg text-xs transition-colors flex items-center gap-1 ${
+                    filterType === t ? "bg-slate-700 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}>
-                  {t !== "Todos" && <Building2 size={11} />}{t}
+                  {t !== "Todos" && <Building2 size={10} />}{t}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Duração</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">Duração</p>
+            <div className="flex flex-wrap gap-1.5">
               {durations.map(d => (
                 <button key={d} onClick={() => setFilterDuration(d)}
-                  className={`px-3 py-1.5 rounded-lg text-xs transition-colors ${
-                    filterDuration === d ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  className={`px-3 py-1 rounded-lg text-xs transition-colors ${
+                    filterDuration === d ? "bg-slate-700 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}>
                   {d}
                 </button>
@@ -356,50 +376,51 @@ export function MissionMap() {
         </div>
       </div>
 
-      {/* Tabela de resultados */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      {/* Tabela */}
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-          <span className="text-base">Resultados</span>
-          <span className="text-xs text-gray-500">{filteredDiplomats.length} diplomata(s)</span>
+          <span className="text-sm font-medium text-gray-700">Resultados</span>
+          <span className="text-xs text-gray-400">{filteredDiplomats.length} diplomata(s)</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
                 {["Diplomata", "Missão", "Tipo", "País", "Início", "Duração", "Estado"].map(h => (
-                  <th key={h} className="px-5 py-3 text-left text-xs uppercase tracking-wide text-gray-500">{h}</th>
+                  <th key={h} className="px-5 py-3 text-left text-xs uppercase tracking-wide text-gray-400">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-50">
               {filteredDiplomats.sort((a, b) => b.months - a.months).map((d, i) => (
                 <tr key={i} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3 text-sm">{d.name}</td>
-                  <td className="px-5 py-3 text-sm">{d.location}</td>
+                  <td className="px-5 py-3 text-sm text-gray-800">{d.name}</td>
+                  <td className="px-5 py-3 text-sm text-gray-600">{d.location}</td>
                   <td className="px-5 py-3">
-                    <span className="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700 flex items-center gap-1 w-fit">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 flex items-center gap-1 w-fit">
                       <Building2 size={10} />{d.type}
                     </span>
                   </td>
-                  <td className="px-5 py-3 text-sm">{d.country}</td>
-                  <td className="px-5 py-3 text-xs text-gray-500">{d.start}</td>
-                  <td className="px-5 py-3 text-sm">
+                  <td className="px-5 py-3 text-sm text-gray-600">{d.country}</td>
+                  <td className="px-5 py-3 text-xs text-gray-400">{d.start}</td>
+                  <td className="px-5 py-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                      <div className="w-14 bg-gray-100 rounded-full h-1.5">
                         <div className="h-1.5 rounded-full" style={{
                           width: `${Math.min((d.months / 36) * 100, 100)}%`,
                           backgroundColor: statusColor(d.status),
                         }} />
                       </div>
-                      <span className="text-xs text-gray-600">{d.months}m</span>
+                      <span className="text-xs text-gray-500">{d.months}m</span>
                     </div>
                   </td>
                   <td className="px-5 py-3">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      d.status === "critical" ? "bg-red-100 text-red-700"
-                      : d.status === "warning" ? "bg-orange-100 text-orange-700"
-                      : "bg-green-100 text-green-700"
-                    }`}>{statusLabel(d.status)}</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full" style={{
+                      backgroundColor: statusColor(d.status) + "22",
+                      color: statusColor(d.status),
+                    }}>
+                      {d.status === "critical" ? "Crítico" : d.status === "warning" ? "Atenção" : "Normal"}
+                    </span>
                   </td>
                 </tr>
               ))}
