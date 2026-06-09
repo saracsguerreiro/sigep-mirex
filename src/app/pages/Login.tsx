@@ -34,7 +34,7 @@ export function Login() {
       <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
-          <img src={logoImage} alt="SIGEP-MIREX" className="mx-auto w-64" />
+          <img src={logoImage} alt="SIGEP-MIREX" className="mx-auto w-96" />
         </div>
 
         {/* Login Card */}
