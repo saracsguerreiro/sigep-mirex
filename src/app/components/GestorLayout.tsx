@@ -16,7 +16,7 @@ export function GestorLayout() {
     { path: "/gestor/rotation", label: "Rotação Diplomática", icon: Globe },
     { path: "/gestor/career", label: "Avaliação & Carreira", icon: TrendingUp },
     { path: "/gestor/compliance", label: "Conformidade Legal", icon: Scale },
-    { path: "/gestor/attendance", label: "Férias & Licenças", icon: Calendar },
+    { path: "/gestor/attendance", label: "Ausências", icon: Calendar },
   ];
 
   const handleLogout = () => {
