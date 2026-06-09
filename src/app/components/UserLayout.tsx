@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../contexts/AuthContext";
-import { User, Globe, TrendingUp, Calendar, LogOut } from "lucide-react";
+import { User, Globe, Map, TrendingUp, Calendar, LogOut } from "lucide-react";
 import logoHoriz from "../../imports/logo_sigep_HORIZ.png";
 
 export function UserLayout() {
@@ -11,6 +11,7 @@ export function UserLayout() {
   const navItems = [
     { path: "/user/dashboard", label: "Perfil", icon: User },
     { path: "/user/rotation", label: "Rotação Diplomática", icon: Globe },
+    { path: "/user/mission-map", label: "Mapa de Missões", icon: Map },
     { path: "/user/career", label: "Avaliação & Carreira", icon: TrendingUp },
     { path: "/user/attendance", label: "Ausências", icon: Calendar },
   ];
