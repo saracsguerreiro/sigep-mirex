@@ -6,41 +6,37 @@ export function DiplomaticRotation() {
       id: "ROT-2026-001",
       diplomat: "Carlos Alberto Mendes",
       currentPost: "Ministério - Luanda",
+      currentStart: "01/03/2022", currentEnd: "31/08/2026",
       newPost: "Embaixada de Lisboa",
-      startDate: "01/09/2026",
-      endDate: "31/08/2029",
+      startDate: "01/09/2026", endDate: "31/08/2029",
       status: "Aprovado",
-      support: "Alojamento, Transporte",
     },
     {
       id: "ROT-2026-002",
       diplomat: "Maria Santos Costa",
       currentPost: "Divisão de África",
+      currentStart: "15/01/2023", currentEnd: "14/07/2026",
       newPost: "Consulado de Paris",
-      startDate: "15/07/2026",
-      endDate: "14/07/2029",
+      startDate: "15/07/2026", endDate: "14/07/2029",
       status: "Pendente",
-      support: "Alojamento, Transporte, Educação",
     },
     {
       id: "ROT-2026-003",
       diplomat: "João Pedro Neto",
       currentPost: "Embaixada de Brasília",
+      currentStart: "01/06/2023", currentEnd: "31/05/2026",
       newPost: "Ministério - Luanda",
-      startDate: "01/06/2026",
-      endDate: "31/05/2028",
+      startDate: "01/06/2026", endDate: "31/05/2028",
       status: "Em Processo",
-      support: "Transporte",
     },
     {
       id: "ROT-2026-004",
       diplomat: "Ana Paula Silva",
       currentPost: "Embaixada de Lisboa",
+      currentStart: "01/10/2023", currentEnd: "30/09/2026",
       newPost: "Embaixada de Pequim",
-      startDate: "01/10/2026",
-      endDate: "30/09/2029",
+      startDate: "01/10/2026", endDate: "30/09/2029",
       status: "Planeamento",
-      support: "Alojamento, Transporte, Educação",
     },
   ];
 
@@ -133,25 +129,34 @@ export function DiplomaticRotation() {
                 key={rotation.id}
                 className="border border-gray-100 rounded-xl p-4 hover:border-blue-200 hover:bg-blue-50/30 transition-colors"
               >
-                {/* Nome + estado */}
+                {/* Nome + estado + olho */}
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <p className="font-semibold text-gray-900">{rotation.diplomat}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{rotation.id}</p>
                   </div>
-                  <span className={`px-2.5 py-1 rounded-full text-xs flex items-center gap-1 ${getStatusColor(rotation.status)}`}>
-                    {getStatusIcon(rotation.status)}
-                    {rotation.status}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <button className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-400 transition-colors">
+                      <Eye size={13} />
+                    </button>
+                    <span className={`px-2.5 py-1 rounded-full text-xs flex items-center gap-1 ${getStatusColor(rotation.status)}`}>
+                      {getStatusIcon(rotation.status)}
+                      {rotation.status}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Postos */}
-                <div className="flex items-start gap-2 mb-3">
+                <div className="flex items-start gap-2">
                   <div className="flex-1 bg-gray-50 rounded-lg p-2.5">
                     <p className="text-xs text-gray-400 mb-1">Posto Actual</p>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 mb-1.5">
                       <MapPin size={12} className="text-gray-400 shrink-0" />
                       <p className="text-xs text-gray-700">{rotation.currentPost}</p>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-gray-400">
+                      <Calendar size={10} />
+                      <span>{rotation.currentStart} — {rotation.currentEnd}</span>
                     </div>
                   </div>
                   <ArrowRight size={16} className="text-gray-300 shrink-0 mt-3" />
@@ -166,14 +171,6 @@ export function DiplomaticRotation() {
                       <span>{rotation.startDate} — {rotation.endDate}</span>
                     </div>
                   </div>
-                </div>
-
-                {/* Botão */}
-                <div className="flex justify-end">
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-600 hover:bg-gray-50 transition-colors">
-                    <Eye size={12} />
-                    Ver Detalhe
-                  </button>
                 </div>
               </div>
             ))}
