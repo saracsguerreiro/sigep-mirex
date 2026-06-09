@@ -26,6 +26,16 @@ const missions = [
   { id:"M018", location:"Embaixada de Abidjan",      type:"Embaixada",  country:"Costa do Marfim", continent:"África",           coordinates:[-4.03,5.35]    as [number,number], diplomats:[{name:"Rogério Mata",months:16,status:"normal",start:"Fev 2025"}] },
   { id:"M019", location:"Embaixada de Havana",       type:"Embaixada",  country:"Cuba",            continent:"América do Norte", coordinates:[-82.38,23.13]  as [number,number], diplomats:[{name:"Palmira Gomes",months:29,status:"warning",start:"Jan 2024"}] },
   { id:"M020", location:"Embaixada de Caracas",      type:"Embaixada",  country:"Venezuela",       continent:"América do Sul",   coordinates:[-66.92,10.49]  as [number,number], diplomats:[{name:"Álvaro Sousa",months:7,status:"normal",start:"Nov 2025"}] },
+  { id:"M021", location:"Embaixada de Seul",          type:"Embaixada",  country:"Coreia do Sul",   continent:"Ásia",             coordinates:[126.98,37.57]  as [number,number], diplomats:[{name:"Celeste Moura",months:21,status:"normal",start:"Set 2024"},{name:"Bernardo Faria",months:12,status:"normal",start:"Jun 2025"}] },
+  { id:"M022", location:"Embaixada de Lagos",         type:"Embaixada",  country:"Nigéria",         continent:"África",           coordinates:[3.38,6.46]     as [number,number], diplomats:[{name:"Osvaldo Cunha",months:30,status:"warning",start:"Dez 2023"}] },
+  { id:"M023", location:"Embaixada de Santiago",      type:"Embaixada",  country:"Chile",           continent:"América do Sul",   coordinates:[-70.67,-33.45] as [number,number], diplomats:[{name:"Margarida Reis",months:18,status:"normal",start:"Dez 2024"}] },
+  { id:"M024", location:"Embaixada da Cidade do México",type:"Embaixada",country:"México",          continent:"América do Norte", coordinates:[-99.13,19.43]  as [number,number], diplomats:[{name:"Valentim Cruz",months:27,status:"warning",start:"Mar 2024"},{name:"Esperança Lima",months:5,status:"normal",start:"Jan 2026"}] },
+  { id:"M025", location:"Embaixada de Banguecoque",   type:"Embaixada",  country:"Tailândia",       continent:"Ásia",             coordinates:[100.52,13.75]  as [number,number], diplomats:[{name:"Vasco Teixeira",months:15,status:"normal",start:"Mar 2025"}] },
+  { id:"M026", location:"Embaixada de Maputo",        type:"Embaixada",  country:"Moçambique",      continent:"África",           coordinates:[32.58,-25.97]  as [number,number], diplomats:[{name:"Otília Sampaio",months:23,status:"normal",start:"Jul 2024"},{name:"Cândido Matos",months:8,status:"normal",start:"Out 2025"}] },
+  { id:"M027", location:"Embaixada de Roma",          type:"Embaixada",  country:"Itália",          continent:"Europa",           coordinates:[12.50,41.90]   as [number,number], diplomats:[{name:"Aristides Neves",months:36,status:"critical",start:"Jun 2023"}] },
+  { id:"M028", location:"Consulado de Genebra",       type:"Consulado",  country:"Suíça",           continent:"Europa",           coordinates:[6.14,46.20]    as [number,number], diplomats:[{name:"Lídia Pacheco",months:14,status:"normal",start:"Abr 2025"}] },
+  { id:"M029", location:"Embaixada de Dacarta",       type:"Embaixada",  country:"Indonésia",       continent:"Ásia",             coordinates:[106.84,-6.21]  as [number,number], diplomats:[{name:"Renato Borges",months:11,status:"normal",start:"Jul 2025"}] },
+  { id:"M030", location:"Embaixada de Acra",          type:"Embaixada",  country:"Gana",            continent:"África",           coordinates:[-0.19,5.55]    as [number,number], diplomats:[{name:"Domingas Ferreira",months:20,status:"normal",start:"Out 2024"}] },
 ];
 
 const CONTINENT_COLORS: Record<string,string> = {
@@ -168,12 +178,12 @@ export function MissionMap() {
         ))}
       </div>
 
-      {/* Mapa + gráficos — altura fixa no cartão externo */}
-      <div className="bg-white rounded-2xl shadow-sm mb-5 overflow-hidden flex flex-col lg:flex-row" style={{height:260}}>
+      {/* Mapa + gráficos */}
+      <div className="bg-white rounded-2xl shadow-sm mb-5 overflow-hidden flex flex-col lg:flex-row">
 
-        {/* Mapa */}
-        <div className="flex-1 relative min-h-0">
-          <ComposableMap projectionConfig={{rotate:[-10,0,0],scale:147}} style={{width:"100%",height:"100%",background:"#fff"}}>
+        {/* Mapa — altura natural pelo ratio width/height do SVG */}
+        <div className="flex-1 relative">
+          <ComposableMap projectionConfig={{rotate:[-10,0,0],scale:147}} width={800} height={440} style={{width:"100%",background:"#fff"}}>
             <ZoomableGroup zoom={1}>
               <Geographies geography={GEO_URL}>
                 {({geographies})=>geographies.map(geo=>(
@@ -231,7 +241,7 @@ export function MissionMap() {
         </div>
 
         {/* Gráficos por continente — painel 5% mais largo (w-52→~218px) */}
-        <div className="shrink-0 border-t lg:border-t-0 lg:border-l border-gray-100 p-5 flex flex-col gap-4 overflow-y-auto" style={{width:218}}>
+        <div className="shrink-0 border-t lg:border-t-0 lg:border-l border-gray-100 p-5 flex flex-col gap-4" style={{width:218}}>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Por Continente</p>
           <div className="space-y-3">
             {continentCounts.map(([name,count])=>(
