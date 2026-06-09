@@ -9,6 +9,7 @@ import { Approvals } from "./pages/gestor/Approvals";
 import { MissionMap } from "./pages/gestor/MissionMap";
 import { EmployeeRegistry } from "./pages/EmployeeRegistry";
 import { DiplomaticRotation } from "./pages/DiplomaticRotation";
+import { UserRotation } from "./pages/user/UserRotation";
 import { CareerEvaluation } from "./pages/CareerEvaluation";
 import { LegalCompliance } from "./pages/LegalCompliance";
 import { Attendance } from "./pages/Attendance";
@@ -43,7 +44,7 @@ export const router = createHashRouter([
         children: [
           { index: true, element: <Navigate to="/user/dashboard" replace /> },
           { path: "dashboard", Component: UserDashboard },
-          { path: "rotation", Component: DiplomaticRotation },
+          { path: "rotation", Component: UserRotation },
           { path: "career", Component: CareerEvaluation },
           { path: "attendance", Component: Attendance },
         ],
