@@ -1,4 +1,4 @@
-import { Globe, MapPin, Calendar, ArrowRight, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { Globe, MapPin, Calendar, ArrowRight, CheckCircle, Clock, AlertCircle, Eye } from "lucide-react";
 
 export function DiplomaticRotation() {
   const rotations = [
@@ -127,60 +127,53 @@ export function DiplomaticRotation() {
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-xl">Rotações em Curso</h2>
           </div>
-          <div className="p-6 space-y-4">
+          <div className="p-4 space-y-2">
             {rotations.map((rotation) => (
               <div
                 key={rotation.id}
-                className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
+                className="border border-gray-100 rounded-xl p-4 hover:border-blue-200 hover:bg-blue-50/30 transition-colors"
               >
-                <div className="flex items-start justify-between mb-3">
+                {/* Nome + estado */}
+                <div className="flex items-center justify-between mb-3">
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">{rotation.id}</p>
-                    <p className="mb-1">{rotation.diplomat}</p>
+                    <p className="font-semibold text-gray-900">{rotation.diplomat}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{rotation.id}</p>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs flex items-center gap-1 ${getStatusColor(rotation.status)}`}>
+                  <span className={`px-2.5 py-1 rounded-full text-xs flex items-center gap-1 ${getStatusColor(rotation.status)}`}>
                     {getStatusIcon(rotation.status)}
                     {rotation.status}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600 mb-1">Posto Actual</p>
-                    <div className="flex items-center gap-2">
-                      <MapPin size={16} className="text-gray-400" />
-                      <p className="text-sm">{rotation.currentPost}</p>
+                {/* Postos */}
+                <div className="flex items-start gap-2 mb-3">
+                  <div className="flex-1 bg-gray-50 rounded-lg p-2.5">
+                    <p className="text-xs text-gray-400 mb-1">Posto Actual</p>
+                    <div className="flex items-center gap-1.5">
+                      <MapPin size={12} className="text-gray-400 shrink-0" />
+                      <p className="text-xs text-gray-700">{rotation.currentPost}</p>
                     </div>
                   </div>
-                  <ArrowRight size={20} className="text-gray-400 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600 mb-1">Novo Posto</p>
-                    <div className="flex items-center gap-2">
-                      <MapPin size={16} className="text-blue-600" />
-                      <p className="text-sm">{rotation.newPost}</p>
+                  <ArrowRight size={16} className="text-gray-300 shrink-0 mt-3" />
+                  <div className="flex-1 bg-blue-50 rounded-lg p-2.5">
+                    <p className="text-xs text-blue-400 mb-1">Novo Posto</p>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <MapPin size={12} className="text-blue-500 shrink-0" />
+                      <p className="text-xs text-blue-800 font-medium">{rotation.newPost}</p>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-blue-500">
+                      <Calendar size={10} />
+                      <span>{rotation.startDate} — {rotation.endDate}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} />
-                    <span>{rotation.startDate} - {rotation.endDate}</span>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-gray-100">
-                  <p className="text-xs text-gray-600 mb-1">Suporte Financeiro:</p>
-                  <div className="flex gap-2">
-                    {rotation.support.split(", ").map((item, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded"
-                      >
-                        {item}
-                      </span>
-                    ))}
-                  </div>
+                {/* Botão */}
+                <div className="flex justify-end">
+                  <button className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-lg text-xs text-gray-600 hover:bg-gray-50 transition-colors">
+                    <Eye size={12} />
+                    Ver Detalhe
+                  </button>
                 </div>
               </div>
             ))}
