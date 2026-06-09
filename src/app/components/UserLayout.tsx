@@ -12,7 +12,7 @@ export function UserLayout() {
     { path: "/user/dashboard", label: "Perfil", icon: User },
     { path: "/user/rotation", label: "Rotação Diplomática", icon: Globe },
     { path: "/user/career", label: "Avaliação & Carreira", icon: TrendingUp },
-    { path: "/user/attendance", label: "Férias, Faltas & Licenças", icon: Calendar },
+    { path: "/user/attendance", label: "Ausências", icon: Calendar },
   ];
 
   const handleLogout = () => {
