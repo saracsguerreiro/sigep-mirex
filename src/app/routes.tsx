@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router";
+import { createHashRouter, Navigate } from "react-router";
 import { Login } from "./pages/Login";
 import { ProfileUpdate } from "./pages/user/ProfileUpdate";
 import { UserDashboard } from "./pages/user/UserDashboard";
@@ -14,7 +14,7 @@ import { LegalCompliance } from "./pages/LegalCompliance";
 import { Attendance } from "./pages/Attendance";
 import { NotFound } from "./pages/NotFound";
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     path: "/",
     element: <Navigate to="/login" replace />,
