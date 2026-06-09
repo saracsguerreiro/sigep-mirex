@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -8,6 +9,7 @@ import {
   Users, UserCheck, Globe, AlertCircle, TrendingUp,
   Calendar, UserPlus, Clock, CheckCircle,
 } from "lucide-react";
+import { NovoCadastroModal } from "../../components/NovoCadastroModal";
 
 const deptData = [
   { dept: "Embaixadas", funcionarios: 342, score: 4.5 },
@@ -46,8 +48,11 @@ const missionAlerts = [
 ];
 
 export function GestorDashboard() {
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
+      <NovoCadastroModal open={modalOpen} onClose={() => setModalOpen(false)} />
 
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -55,13 +60,13 @@ export function GestorDashboard() {
           <h1 className="text-3xl mb-1">Dashboard</h1>
           <p className="text-gray-500 text-sm">Visão geral do sistema SIGEP-MIREX · Junho 2026</p>
         </div>
-        <Link
-          to="/gestor/approvals"
+        <button
+          onClick={() => setModalOpen(true)}
           className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md text-sm font-medium"
         >
           <UserPlus size={18} />
           Novo Cadastro
-        </Link>
+        </button>
       </div>
 
       {/* KPI Cards */}
