@@ -304,7 +304,7 @@ export function Approvals() {
                 </p>
                 <div className="flex gap-1 mt-1.5 flex-wrap">
                   {approval.diff.filter(d => d.changed).map((d, i) => (
-                    <span key={i} className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">{d.field}</span>
+                    <span key={i} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">{d.field}</span>
                   ))}
                 </div>
               </div>
