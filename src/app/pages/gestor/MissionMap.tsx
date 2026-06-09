@@ -171,8 +171,8 @@ export function MissionMap() {
       {/* Mapa + gráficos */}
       <div className="bg-white rounded-2xl shadow-sm mb-5 overflow-hidden flex flex-col lg:flex-row">
 
-        {/* Mapa — altura reduzida */}
-        <div className="flex-1 relative" style={{minHeight:230}}>
+        {/* Mapa */}
+        <div className="flex-1 relative" style={{minHeight:184}}>
           <ComposableMap projectionConfig={{rotate:[-10,0,0],scale:147}} style={{width:"100%",height:"100%",background:"#fff"}}>
             <ZoomableGroup zoom={1}>
               <Geographies geography={GEO_URL}>
@@ -280,71 +280,58 @@ export function MissionMap() {
         </div>
       )}
 
-      {/* Filtros */}
-      <div className="bg-white rounded-2xl shadow-sm p-5 mb-5">
+      {/* Filtros — dropdowns */}
+      <div className="bg-white rounded-2xl shadow-sm px-5 py-4 mb-5">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Filter size={14} className="text-gray-400"/>
             <span className="text-sm text-gray-600">Filtros</span>
             {filterCountry!=="Todos"&&(
-              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{filterCountry}</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 flex items-center gap-1">
+                {filterCountry}
+                <button onClick={()=>{setFilterCountry("Todos");setSelected(null);}} className="ml-0.5 hover:text-blue-900"><X size={10}/></button>
+              </span>
             )}
           </div>
           {hasActiveFilter&&(
             <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1">
-              <X size={12}/>Limpar filtros
+              <X size={12}/>Limpar
             </button>
           )}
         </div>
-        <div className="flex flex-wrap gap-5">
-          <div>
-            <p className="text-xs text-gray-400 mb-1.5 uppercase tracking-wide">Continente</p>
-            <div className="flex flex-wrap gap-1.5">
-              {continents.map(c=>(
-                <button key={c} onClick={()=>{setFilterContinent(c);setFilterCountry("Todos");}}
-                  className={`px-2.5 py-1 rounded-lg text-xs transition-colors ${filterContinent===c?"text-white":"bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
-                  style={filterContinent===c?{backgroundColor:CONTINENT_COLORS[c]??"#3b82f6"}:{}}>
-                  {c}
-                </button>
-              ))}
-            </div>
+        <div className="flex flex-wrap gap-3">
+          {/* Continente */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-400 uppercase tracking-wide">Continente</label>
+            <select value={filterContinent}
+              onChange={e=>{setFilterContinent(e.target.value);setFilterCountry("Todos");}}
+              className="border border-gray-200 rounded-lg text-xs text-gray-700 px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer">
+              {continents.map(c=><option key={c} value={c}>{c}</option>)}
+            </select>
           </div>
-          <div>
-            <p className="text-xs text-gray-400 mb-1.5 uppercase tracking-wide">Tipo</p>
-            <div className="flex gap-1.5">
-              {types.map(t=>(
-                <button key={t} onClick={()=>setFilterType(t)}
-                  className={`px-2.5 py-1 rounded-lg text-xs transition-colors flex items-center gap-1 ${filterType===t?"bg-slate-700 text-white":"bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
-                  {t!=="Todos"&&<Building2 size={10}/>}{t}
-                </button>
-              ))}
-            </div>
+          {/* Tipo */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-400 uppercase tracking-wide">Tipo</label>
+            <select value={filterType} onChange={e=>setFilterType(e.target.value)}
+              className="border border-gray-200 rounded-lg text-xs text-gray-700 px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer">
+              {types.map(t=><option key={t} value={t}>{t}</option>)}
+            </select>
           </div>
-          <div>
-            <p className="text-xs text-gray-400 mb-1.5 uppercase tracking-wide">Estado</p>
-            <div className="flex gap-1.5">
-              {statuses.map(s=>{
-                const color = s==="Normal"?"#10b981":s==="Atenção"?"#f59e0b":s==="Crítico"?"#ef4444":undefined;
-                return (
-                  <button key={s} onClick={()=>setFilterStatus(s)}
-                    className={`px-2.5 py-1 rounded-lg text-xs transition-colors ${filterStatus===s?"text-white":"bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
-                    style={filterStatus===s&&color?{backgroundColor:color}:filterStatus===s?{backgroundColor:"#374151"}:{}}>
-                    {s}
-                  </button>
-                );
-              })}
-            </div>
+          {/* Estado */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-400 uppercase tracking-wide">Estado</label>
+            <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}
+              className="border border-gray-200 rounded-lg text-xs text-gray-700 px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer">
+              {statuses.map(s=><option key={s} value={s}>{s}</option>)}
+            </select>
           </div>
-          <div>
-            <p className="text-xs text-gray-400 mb-1.5 uppercase tracking-wide">Duração</p>
-            <div className="flex flex-wrap gap-1.5">
-              {durations.map(d=>(
-                <button key={d} onClick={()=>setFilterDuration(d)}
-                  className={`px-2.5 py-1 rounded-lg text-xs transition-colors ${filterDuration===d?"bg-slate-700 text-white":"bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
-                  {d}
-                </button>
-              ))}
-            </div>
+          {/* Duração */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-400 uppercase tracking-wide">Duração</label>
+            <select value={filterDuration} onChange={e=>setFilterDuration(e.target.value)}
+              className="border border-gray-200 rounded-lg text-xs text-gray-700 px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 cursor-pointer">
+              {durations.map(d=><option key={d} value={d}>{d}</option>)}
+            </select>
           </div>
         </div>
       </div>
