@@ -1,4 +1,4 @@
-import { createHashRouter, Navigate } from "react-router";
+import { createHashRouter, Navigate, Outlet } from "react-router";
 import { Login } from "./pages/Login";
 import { ProfileUpdate } from "./pages/user/ProfileUpdate";
 import { UserDashboard } from "./pages/user/UserDashboard";
@@ -14,6 +14,12 @@ import { LegalCompliance } from "./pages/LegalCompliance";
 import { Attendance } from "./pages/Attendance";
 import { NotFound } from "./pages/NotFound";
 
+function RequireAuth() {
+  const stored = localStorage.getItem("sigep_user");
+  if (!stored) return <Navigate to="/login" replace />;
+  return <Outlet />;
+}
+
 export const router = createHashRouter([
   {
     path: "/",
@@ -24,32 +30,37 @@ export const router = createHashRouter([
     Component: Login,
   },
   {
-    path: "/user/profile-update",
-    Component: ProfileUpdate,
-  },
-  {
-    path: "/user",
-    Component: UserLayout,
+    element: <RequireAuth />,
     children: [
-      { index: true, element: <Navigate to="/user/dashboard" replace /> },
-      { path: "dashboard", Component: UserDashboard },
-      { path: "rotation", Component: DiplomaticRotation },
-      { path: "career", Component: CareerEvaluation },
-      { path: "attendance", Component: Attendance },
-    ],
-  },
-  {
-    path: "/gestor",
-    Component: GestorLayout,
-    children: [
-      { index: true, Component: GestorDashboard },
-      { path: "approvals", Component: Approvals },
-      { path: "mission-map", Component: MissionMap },
-      { path: "employees", Component: EmployeeRegistry },
-      { path: "rotation", Component: DiplomaticRotation },
-      { path: "career", Component: CareerEvaluation },
-      { path: "compliance", Component: LegalCompliance },
-      { path: "attendance", Component: Attendance },
+      {
+        path: "/user/profile-update",
+        Component: ProfileUpdate,
+      },
+      {
+        path: "/user",
+        Component: UserLayout,
+        children: [
+          { index: true, element: <Navigate to="/user/dashboard" replace /> },
+          { path: "dashboard", Component: UserDashboard },
+          { path: "rotation", Component: DiplomaticRotation },
+          { path: "career", Component: CareerEvaluation },
+          { path: "attendance", Component: Attendance },
+        ],
+      },
+      {
+        path: "/gestor",
+        Component: GestorLayout,
+        children: [
+          { index: true, Component: GestorDashboard },
+          { path: "approvals", Component: Approvals },
+          { path: "mission-map", Component: MissionMap },
+          { path: "employees", Component: EmployeeRegistry },
+          { path: "rotation", Component: DiplomaticRotation },
+          { path: "career", Component: CareerEvaluation },
+          { path: "compliance", Component: LegalCompliance },
+          { path: "attendance", Component: Attendance },
+        ],
+      },
     ],
   },
   {
