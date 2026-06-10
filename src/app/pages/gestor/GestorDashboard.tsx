@@ -75,7 +75,7 @@ export function GestorDashboard() {
           { label: "Total de Funcionários", value: "1.247", icon: Users, color: "bg-blue-600", change: "+23 este mês" },
           { label: "Cadastros Pendentes", value: "18", icon: UserCheck, color: "bg-orange-500", change: "Aguardam aprovação" },
           { label: "Missões Activas", value: "47", icon: Globe, color: "bg-emerald-600", change: "+2 este mês" },
-          { label: "Alertas", value: "12", icon: AlertCircle, color: "bg-red-500", change: "Conformidade" },
+          { label: "Contratos", value: "343", icon: AlertCircle, color: "bg-red-500", change: "Activos" },
         ].map((s, i) => (
           <div key={i} className="bg-white rounded-xl shadow-sm p-5 flex items-center gap-4">
             <div className={`${s.color} p-3 rounded-lg shrink-0`}>
